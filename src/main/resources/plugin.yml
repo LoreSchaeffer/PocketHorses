@@ -1,0 +1,6 @@
+name: PocketHorses
+version: 1.0.0
+main: it.multicoredev.ph.PocketHorses
+api-version: 1.19
+author: LoreSchaeffer
+description: Portable Horses
