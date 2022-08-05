@@ -1,8 +1,14 @@
 package it.multicoredev.ph;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import it.multicoredev.mclib.json.GsonHelper;
 import it.multicoredev.ph.listeners.HorseDismountListener;
 import it.multicoredev.ph.listeners.PlayerInteractListener;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Copyright © 2022 by Lorenzo Magni
@@ -25,15 +31,42 @@ import org.bukkit.plugin.java.JavaPlugin;
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 public class PocketHorses extends JavaPlugin {
+    private final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private final GsonHelper gson = new GsonHelper(GSON);
+    private final File configFile = new File(getDataFolder(), "config.json");
+
+    private Config config;
 
     @Override
     public void onEnable() {
-        getServer().getPluginManager().registerEvents(new HorseDismountListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerInteractListener(), this);
+        if (!initStorage()) {
+            onDisable();
+            return;
+        }
+        getServer().getPluginManager().registerEvents(new HorseDismountListener(config), this);
+        getServer().getPluginManager().registerEvents(new PlayerInteractListener(config), this);
     }
 
     @Override
     public void onDisable() {
 
+    }
+
+    private boolean initStorage() {
+        if (!getDataFolder().exists() || !getDataFolder().isDirectory()) {
+            if (!getDataFolder().mkdir()) {
+                new IOException("Cannot create VanillaTowny directory").printStackTrace();
+                return false;
+            }
+        }
+
+        try {
+            config = gson.autoload(configFile, new Config().init(), Config.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 }
