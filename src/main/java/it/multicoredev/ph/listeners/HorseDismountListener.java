@@ -81,7 +81,7 @@ public class HorseDismountListener implements Listener {
             if (horse.getCustomName() != null) meta.setDisplayName(horse.getCustomName());
             List<String> lore = new ArrayList<>();
             lore.add(Chat.getTranslated(messages.horseOf.replace("{player}", horse.getOwner().getName())));
-            lore.add(Chat.getTranslated(messages.horseOf.replace("{health}", String.valueOf(horse.getHealth()))));
+            lore.add(Chat.getTranslated(messages.horseHealth.replace("{health}", String.valueOf(horse.getHealth()))));
             meta.setLore(lore);
             saddle.setItemMeta(meta);
         }

@@ -76,6 +76,7 @@ public class PlayerInteractListener implements Listener {
         AbstractHorse horse = (AbstractHorse) horseLocation.getWorld().spawnEntity(horseLocation, EntityType.valueOf(horseType));
         NBTEntity horseNBT = new NBTEntity(horse);
         horseNBT.mergeCompound(new NBTContainer(new String(Base64.getDecoder().decode(horseNBTString))));
+        horse.teleport(horseLocation);
 
         event.getPlayer().getInventory().remove(item);
     }
