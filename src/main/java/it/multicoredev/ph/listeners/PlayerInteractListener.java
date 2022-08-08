@@ -1,9 +1,14 @@
 package it.multicoredev.ph.listeners;
 
-import de.tr7zw.changeme.nbtapi.NBTCompound;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTEntity;
 import de.tr7zw.changeme.nbtapi.NBTItem;
+import it.multicoredev.mbcore.spigot.Chat;
+import it.multicoredev.ph.Config;
+import it.multicoredev.ph.Messages;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -38,6 +43,11 @@ import java.util.Base64;
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 public class PlayerInteractListener implements Listener {
+    private final Messages messages;
+
+    public PlayerInteractListener(Config config) {
+        messages = config.messages;
+    }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
@@ -57,9 +67,16 @@ public class PlayerInteractListener implements Listener {
         if (target == null) return;
         Location horseLocation = target.getLocation().add(0, 1, 0);
 
+        RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
+        if (!query.getApplicableRegions(BukkitAdapter.adapt(horseLocation)).getRegions().isEmpty()) {
+            Chat.send(messages.regionFound, event.getPlayer());
+            return;
+        }
+
         AbstractHorse horse = (AbstractHorse) horseLocation.getWorld().spawnEntity(horseLocation, EntityType.valueOf(horseType));
         NBTEntity horseNBT = new NBTEntity(horse);
         horseNBT.mergeCompound(new NBTContainer(new String(Base64.getDecoder().decode(horseNBTString))));
+        horse.teleport(horseLocation);
 
         event.getPlayer().getInventory().remove(item);
     }

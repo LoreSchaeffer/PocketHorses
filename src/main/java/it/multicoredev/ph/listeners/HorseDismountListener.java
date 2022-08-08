@@ -3,6 +3,8 @@ package it.multicoredev.ph.listeners;
 import de.tr7zw.changeme.nbtapi.NBTEntity;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import it.multicoredev.mbcore.spigot.Chat;
+import it.multicoredev.ph.Config;
+import it.multicoredev.ph.Messages;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -38,6 +40,11 @@ import java.util.List;
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 public class HorseDismountListener implements Listener {
+    private final Messages messages;
+
+    public HorseDismountListener(Config config) {
+        messages = config.messages;
+    }
 
     @EventHandler
     public void onHorseDismount(VehicleExitEvent event) {
@@ -73,8 +80,8 @@ public class HorseDismountListener implements Listener {
         if (meta != null) {
             if (horse.getCustomName() != null) meta.setDisplayName(horse.getCustomName());
             List<String> lore = new ArrayList<>();
-            lore.add(Chat.getTranslated("&eCavallo di: &b" + horse.getOwner().getName()));
-            lore.add(Chat.getTranslated("&eSalute: &c" + horse.getHealth() + " ❤"));
+            lore.add(Chat.getTranslated(messages.horseOf.replace("{player}", horse.getOwner().getName())));
+            lore.add(Chat.getTranslated(messages.horseHealth.replace("{health}", String.valueOf(horse.getHealth()))));
             meta.setLore(lore);
             saddle.setItemMeta(meta);
         }

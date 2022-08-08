@@ -1,14 +1,6 @@
 package it.multicoredev.ph;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import it.multicoredev.mclib.json.GsonHelper;
-import it.multicoredev.ph.listeners.HorseDismountListener;
-import it.multicoredev.ph.listeners.PlayerInteractListener;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
-import java.io.IOException;
+import it.multicoredev.mclib.json.JsonConfig;
 
 /**
  * Copyright © 2022 by Lorenzo Magni
@@ -30,43 +22,14 @@ import java.io.IOException;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class PocketHorses extends JavaPlugin {
-    private final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private final GsonHelper gson = new GsonHelper(GSON);
-    private final File configFile = new File(getDataFolder(), "config.json");
+public class Config extends JsonConfig {
+    public Messages messages;
 
-    private Config config;
 
     @Override
-    public void onEnable() {
-        if (!initStorage()) {
-            onDisable();
-            return;
-        }
-        getServer().getPluginManager().registerEvents(new HorseDismountListener(config), this);
-        getServer().getPluginManager().registerEvents(new PlayerInteractListener(config), this);
-    }
+    public Config init() {
+        if (messages == null) messages = new Messages().init();
 
-    @Override
-    public void onDisable() {
-
-    }
-
-    private boolean initStorage() {
-        if (!getDataFolder().exists() || !getDataFolder().isDirectory()) {
-            if (!getDataFolder().mkdir()) {
-                new IOException("Cannot create VanillaTowny directory").printStackTrace();
-                return false;
-            }
-        }
-
-        try {
-            config = gson.autoload(configFile, new Config().init(), Config.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
+        return this;
     }
 }

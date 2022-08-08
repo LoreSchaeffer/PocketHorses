@@ -4,3 +4,4 @@ main: it.multicoredev.ph.PocketHorses
 api-version: 1.19
 author: LoreSchaeffer
 description: Portable Horses
+depend: [ WorldGuard ]
