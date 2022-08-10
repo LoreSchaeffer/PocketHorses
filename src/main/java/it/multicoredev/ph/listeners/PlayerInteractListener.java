@@ -14,10 +14,17 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Horse;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.HorseInventory;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Base64;
@@ -79,5 +86,45 @@ public class PlayerInteractListener implements Listener {
         horse.teleport(horseLocation);
 
         event.getPlayer().getInventory().remove(item);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerClickEntity(final PlayerInteractEntityEvent event) {
+        if (!(event.getRightClicked() instanceof Horse)) return;
+        ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
+        if (item.getType() != Material.SADDLE) return;
+        NBTItem nbt = new NBTItem(item);
+        if (nbt.hasKey("horse") && nbt.getBoolean("horse")) event.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInventoryClick(InventoryClickEvent event) {
+        Inventory inventory = event.getClickedInventory();
+        ItemStack item = event.getCurrentItem();
+        ItemStack item2 = event.getCursor();
+
+        if (item == null && item2 == null) return;
+
+        if (item != null) {
+            if (item.getType() != Material.SADDLE) return;
+            NBTItem nbt = new NBTItem(item);
+            if (!nbt.hasKey("horse") || !nbt.getBoolean("horse")) return;
+        } else {
+            if (item2.getType() != Material.SADDLE) return;
+            NBTItem nbt = new NBTItem(item2);
+            if (!nbt.hasKey("horse") || !nbt.getBoolean("horse")) return;
+        }
+
+        if (inventory instanceof HorseInventory || event.getView().getTopInventory() instanceof HorseInventory) event.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onDispense(BlockDispenseEvent event) {
+        ItemStack item = event.getItem();
+        if (item.getType() != Material.SADDLE) return;
+
+        NBTItem nbt = new NBTItem(item);
+        if (!nbt.hasKey("horse") || !nbt.getBoolean("horse")) return;
+        event.setCancelled(true);
     }
 }
